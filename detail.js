@@ -1,0 +1,65 @@
+// la prima cosa da fare sarà una chiamata API con una fetch tipo:
+// fetch('https://striveschool-api.herokuapp.com/api/agenda/6527b1910bdded00189a7954')
+// devo riuscire a traportarmi nella pagina detail l'_id dell'evento su cui ho cliccato
+
+// sono riuscito a trasportare l'_id dell'evento su cui ho cliccato tramite i QUERY PARAMETERS
+// ora l'indirizzo della pagina details è qualcosa così: http://127.0.0.1:5500/detail.html?eventId=6527b1910bdded00189a7954
+// mi manca solamente da recuperare via JS il valore di questo eventId e utilizzarlo per la mia fetch dei dettagli
+
+// una fetch('https://striveschool-api.herokuapp.com/api/agenda') <-- ci torna TUTTI gli eventi dell'agenda
+// una fetch('https://striveschool-api.herokuapp.com/api/agenda/6527b1910bdded00189a7954')
+// <-- ci torna SOLAMENTE I DETTAGLI DELL'EVENTO con _id "6527b1910bdded00189a7954"
+
+// recuperiamo l'eventId dalla barra degli indirizzi :)
+const addressBarContent = new URLSearchParams(location.search)
+// questo crea un oggetto di tipo URLSearchParams a partire dal contenuto della barra degli indirizzi
+// recupero nello specifico eventId
+const eventId = addressBarContent.get('eventId') // <-- recupero solamente il valore di eventId
+console.log(eventId)
+
+// ora facciamo una fetch molto specifica per ottenere i dettagli dell'evento su cui ho cliccato
+// utilizzerò l'indirizzo "standard", /agenda, e ci concatenerò l'id che ho prelevato dal parametro nella barra degli indirizzi
+
+const generateEventDetails = function (details) {
+  // prendo un riferimento alla row
+  const row = document.getElementById('event-details')
+  row.innerHTML = `
+        <div class="col col-12 col-lg-6">
+            <h2 class="text-center">DETTAGLI DELL'EVENTO</h2>
+            <img
+              src="https://ichef.bbci.co.uk/images/ic/1200x675/p0fq9cyz.jpg"
+              class="w-100"
+              alt="generic concert picture"
+            />
+            <h3 class="text-center mt-4">NOME CONCERTO</h3>
+            <p>
+              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nulla
+              exercitationem quisquam ut. Eos molestias officia a adipisci
+              sapiente, impedit facere beatae corrupti iure dolore saepe, totam
+              ut. Unde, labore delectus?
+            </p>
+            <p>Quando: -data-</p>
+            <p>Prezzo: xxx€</p>
+        </div>
+    `
+}
+
+const getSingleEventDetails = function () {
+  fetch('https://striveschool-api.herokuapp.com/api/agenda/' + eventId)
+    .then((res) => {
+      if (res.ok) {
+        // abbiamo ottenuto i dettagli del singolo evento su cui abbiamo cliccato
+        // recuperiamo il suo JSON
+        return res.json()
+      } else {
+        throw new Error('Errore nel caricamento dei dettagli')
+      }
+    })
+    .then((eventData) => {
+      // eventData è UN OGGETTO! sono i singoli dettagli dell'evento, il suo name, il suo price, etc.
+      generateEventDetails(eventData)
+    })
+    .catch((err) => console.log('ERRORE', err))
+}
+
+getSingleEventDetails()

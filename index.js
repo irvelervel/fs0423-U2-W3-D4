@@ -4,8 +4,30 @@
 // 2) dobbiamo generare, per ogni evento, una colonna con dentro la sua card di informazioni
 
 const renderEvents = function (arrayOfEvents) {
+  // riferimento alla riga
+  const row = document.getElementById('events-row')
+
   arrayOfEvents.forEach((event) => {
     // ora qua creerò una col nel DOM per ogni evento!
+    const newCol = document.createElement('div')
+    newCol.classList.add('col', 'col-12', 'col-sm-6', 'col-md-3')
+    // <div class="col col-12 col-sm-6 col-md-3"></div>
+    newCol.innerHTML = `
+    <div class="card">
+        <img src="https://ichef.bbci.co.uk/images/ic/1200x675/p0fq9cyz.jpg" class="card-img-top" alt="generic concert picture">
+        <div class="card-body">
+            <h5 class="card-title">${event.name}</h5>
+            <p class="card-text">${event.description}</p>
+            <p class="card-text">${new Date(event.time).toLocaleDateString(
+              'it-IT'
+            )} - Prezzo: ${event.price}€</p>
+            <a href="./detail.html?eventId=${
+              event._id
+            }" class="btn btn-primary">DETTAGLI</a>
+        </div>
+    </div>
+    `
+    row.appendChild(newCol)
   })
 }
 
