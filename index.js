@@ -31,9 +31,17 @@ const renderEvents = function (arrayOfEvents) {
   })
 }
 
+const hideSpinner = function () {
+  // nascondo lo spinner, perchè la Promise non è più in pending
+  const spinner = document.getElementById('loading-spinner')
+  spinner.classList.add('d-none')
+}
+
 const getEvents = function () {
   fetch('https://striveschool-api.herokuapp.com/api/agenda')
     .then((res) => {
+      hideSpinner()
+
       console.log('Response ottenuta dalla GET', res)
       if (res.ok) {
         // la chiamata è terminata correttamente con un 200
@@ -49,6 +57,7 @@ const getEvents = function () {
       renderEvents(events)
     })
     .catch((err) => {
+      hideSpinner()
       console.log('Si è verificato un errore:', err)
     })
 }

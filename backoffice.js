@@ -1,3 +1,43 @@
+// aggiungiamo a questa pagina la logica necessaria per poter operare in MODIFICA
+// operiamo in MODIFICA se il nostro link nella barra degli indirizzi prevederà un query parameter chiamato eventId
+
+const addressBarContent = new URLSearchParams(location.search)
+const eventId = addressBarContent.get('eventId')
+console.log(eventId) // può essere una stringa, nel caso il parametro ci sia, oppure può essere null
+
+// SE e solo SE siamo in modalità modifica, ovvero se eventId è una stringa (e non è null), facciamo una fetch
+// aggiuntiva per prelevare i dettagli dell'evento, in modo da ripopolare il form!
+
+if (eventId) {
+  // se siamo in modalità modifica...
+  fetch('https://striveschool-api.herokuapp.com/api/agenda/' + eventId)
+    .then((res) => {
+      if (res.ok) {
+        // la response è ok! estraiamo i dettagli
+        return res.json()
+      } else {
+        throw new Error('ERRORE NEL RECUPERO DETTAGLIO')
+      }
+    })
+    .then((eventDetails) => {
+      // luce verde! abbiamo ottenuto i dettagli
+      // dobbiamo ora ripopolare il form!
+      const nameInput = document.getElementById('name')
+      const descriptionInput = document.getElementById('description')
+      const priceInput = document.getElementById('price')
+      const timeInput = document.getElementById('time')
+
+      // li ripopolo con i dettagli di eventDetails
+      nameInput.value = eventDetails.name
+      descriptionInput.value = eventDetails.description
+      priceInput.value = eventDetails.price
+      timeInput.value = eventDetails.time.split('.000Z')[0] // rimuove '.000Z' dalla stringa
+    })
+    .catch((err) => {
+      console.log('errore', err)
+    })
+}
+
 // com'è fatto un evento?
 
 // - name (string)
@@ -37,8 +77,23 @@ formReference.addEventListener('submit', function (e) {
   // DELETE -> elimino un dato esistente
 
   // oggetto pronto! è arrivato il momento di spedirlo all'API
-  fetch('https://striveschool-api.herokuapp.com/api/agenda', {
-    method: 'POST', // dichiaro che questa chiamata non è una GET, ma una POST
+
+  // attenzione! se siamo in modalità MODIFICA, non devo fare una POST ma devo fare una PUT!
+  let methodToUse = 'POST'
+  if (eventId) {
+    methodToUse = 'PUT'
+  }
+
+  // la POST va sempre fatta sull'indirizzo GENERICO
+  // una PUT va sempre fatta su un INDIRIZZO SPECIFICO, COMPLETO DI ID
+
+  let urlToUse = 'https://striveschool-api.herokuapp.com/api/agenda'
+  if (eventId) {
+    urlToUse = 'https://striveschool-api.herokuapp.com/api/agenda/' + eventId
+  }
+
+  fetch(urlToUse, {
+    method: methodToUse, // dichiaro che questa chiamata non è una GET, ma una POST (o una PUT!)
     body: JSON.stringify(newEvent), // invio il mio evento alle API, ma devo prima trasformarlo in stringa!
     headers: {
       // headers è un oggetto in cui inseriamo le nostre "meta-informazioni"

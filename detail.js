@@ -20,6 +20,26 @@ console.log(eventId)
 // ora facciamo una fetch molto specifica per ottenere i dettagli dell'evento su cui ho cliccato
 // utilizzerò l'indirizzo "standard", /agenda, e ci concatenerò l'id che ho prelevato dal parametro nella barra degli indirizzi
 
+const deleteEvent = function () {
+  // questa funzione servirà ad eliminare l'evento corrente
+  fetch('https://striveschool-api.herokuapp.com/api/agenda/' + eventId, {
+    method: 'DELETE',
+  })
+    .then((res) => {
+      if (res.ok) {
+        // EVENTO ELIMINATO CORRETTAMENTE!
+        alert('EVENTO ELIMINATO')
+        location.assign('./index.html') // facciamo tornare l'utente in homepage
+      } else {
+        alert("Problema con l'eliminazione dell'evento")
+        throw new Error('Errore nella DELETE')
+      }
+    })
+    .catch((err) => {
+      console.log('ERRORE!', err)
+    })
+}
+
 const generateEventDetails = function (details) {
   // prendo un riferimento alla row
   const row = document.getElementById('event-details')
@@ -31,15 +51,16 @@ const generateEventDetails = function (details) {
               class="w-100"
               alt="generic concert picture"
             />
-            <h3 class="text-center mt-4">NOME CONCERTO</h3>
+            <h3 class="text-center mt-4">${details.name}</h3>
             <p>
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nulla
-              exercitationem quisquam ut. Eos molestias officia a adipisci
-              sapiente, impedit facere beatae corrupti iure dolore saepe, totam
-              ut. Unde, labore delectus?
+              ${details.description}
             </p>
-            <p>Quando: -data-</p>
-            <p>Prezzo: xxx€</p>
+            <p>Quando:${new Date(details.time).toLocaleDateString('it-IT')}</p>
+            <p>Prezzo: ${details.price}€</p>
+            <button class="btn btn-danger" onclick="deleteEvent()">ELIMINA</button>
+            <a class="btn btn-warning" href="./backoffice.html?eventId=${
+              details._id
+            }">MODIFICA</a>
         </div>
     `
 }
